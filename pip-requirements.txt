@@ -1,3 +1,5 @@
 pyyaml
 pyunit
 mock
+nose
+
