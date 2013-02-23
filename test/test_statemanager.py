@@ -3,13 +3,23 @@
 # Test methods for the statread.py method: reading system state.
 
 import unittest
-import stateread
+import statemanager
 import yaml
 import os
 import datetime
 import states
 
-class TestFileFind(unittest.TestCase):
+class TestStateWrite(unittest.TestCase):
+    def setUp(self):
+        test_OKState = states.OKState(datetime.datetime.today(), "System Functional")
+        pass
+    
+    def test_OpenFile(self):
+        actual = statemanager.open_file_for_save('System_State.yaml')
+        self.assertIs(type(actual), file, "Error writing file")
+        
+
+class TestStateRead(unittest.TestCase):
     def setUp(self):
         
         #Create mock files for testing
@@ -35,36 +45,36 @@ class TestFileFind(unittest.TestCase):
             f.close                
                     
     def test_FileMissing(self):
-        self.assertRaises(stateread.MissingStateFileError, stateread.get_file_handle, "nonexistent.yaml")
+        self.assertRaises(statemanager.MissingStateFileError, statemanager.get_file_handle, "nonexistent.yaml")
         
     def test_FileNotMissing(self):  
-        actual = stateread.get_file_handle("empty_mock.yaml")
+        actual = statemanager.get_file_handle("empty_mock.yaml")
         self.assertIs(type(actual), file, "File is missing")
         
     def test_Recovers_OK_State(self):
-        actual = stateread.parse_state_file("normal_mock.yaml")
+        actual = statemanager.parse_state_file("normal_mock.yaml")
         self.assertIsInstance(actual, states.OKState, "Error Recovering OK State")
         
     def test_Recovers_Warning_State(self):
-        actual = stateread.parse_state_file("warning_mock.yaml")
+        actual = statemanager.parse_state_file("warning_mock.yaml")
         self.assertIsInstance(actual, states.WarningState, "Error Recovering Warning State")
     
     def test_Recovers_Alert_State(self):
-        actual = stateread.parse_state_file("action_mock.yaml")
+        actual = statemanager.parse_state_file("action_mock.yaml")
         self.assertIsInstance(actual, states.ActionState, "Error Recovering Action State")
     
     def test_Recovers_correct_date(self):
-        actual = stateread.parse_state_file("normal_mock.yaml").since
+        actual = statemanager.parse_state_file("normal_mock.yaml").since
         expected = datetime.datetime(2013, 2, 10, 13, 12, 11)
         self.assertEqual(actual, expected, "Unexpected datetime")
     
     def test_Recovers_correct_message(self):
-        actual = stateread.parse_state_file("normal_mock.yaml").message
+        actual = statemanager.parse_state_file("normal_mock.yaml").message
         expected = "No Message"
         self.assertEqual(actual, expected, "Unexpected message paramater")
     
     def test_Raises_Trash_Exception(self):
-        self.assertRaises(stateread.InvalidStateFileError, stateread.parse_state_file, "trash_mock.yaml")
+        self.assertRaises(statemanager.InvalidStateFileError, statemanager.parse_state_file, "trash_mock.yaml")
         
     def tearDown(self):
         for i in self.mock_file_dict.iterkeys():

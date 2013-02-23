@@ -13,8 +13,8 @@ class MissingStateFileError(Exception):
 
 def get_file_handle(state_file):
     try:
-        f = open(state_file, 'r')
-        return f
+        file_handle = open(state_file, 'r')
+        return file_handle
     except IOError:
         raise MissingStateFileError()
 
@@ -41,6 +41,8 @@ def parse_state_file(state_file):
 # ToDo: Raise exception if type(since) != datetime
 
 
-
+def open_file_for_save(state_file):
+    file_handle = open(state_file, 'w')
+    return file_handle
     
     
