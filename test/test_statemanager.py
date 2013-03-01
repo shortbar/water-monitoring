@@ -11,12 +11,23 @@ import states
 
 class TestStateWrite(unittest.TestCase):
     def setUp(self):
-        test_OKState = states.OKState(datetime.datetime.today(), "System Functional")
+        self.test_file_name = "System_State.yaml"
+        self.okay_mock = states.OKState(datetime.datetime.now(),"Everything will be fine")
         pass
     
     def test_OpenFile(self):
-        actual = statemanager.open_file_for_save('System_State.yaml')
+        actual = statemanager.open_file_for_save(self.test_file_name)
         self.assertIs(type(actual), file, "Error writing file")
+    
+    def test_YamlDump(self):
+        actual = yaml.load(statemanager.yaml_dump(self.okay_mock))
+        self.assertIs(type(actual), dict,"Error Returning Yaml Dump")
+    
+    def test_StateWrite(self):
+        statemanager.write_state_file(self.test_file_name, self.okay_mock)
+        actual = open(self.test_file_name)     
+        self.assertIs(type(actual), file, "Error writing file")
+    
         
 
 class TestStateRead(unittest.TestCase):
