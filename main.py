@@ -16,4 +16,3 @@ try:
 	statemanager.save(current_state)
 except:
 	gpio_mgr.set_trouble()
-

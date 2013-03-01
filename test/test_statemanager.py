@@ -11,44 +11,33 @@ import states
 
 class TestStateWrite(unittest.TestCase):
     def setUp(self):
-        self.test_file_name = "System_State.yaml"
-        self.okay_mock = states.OKState(datetime.datetime.now(),"Everything will be fine")
+        self.test_file_name = "test/tmp/System_State.yaml"
+        self.okay_mock = states.OKState(datetime.datetime.now(), "Everything will be fine")
         pass
     
     def test_OpenFile(self):
         actual = statemanager._open_file_for_save(self.test_file_name)
         self.assertIs(type(actual), file, "Error writing file")
     
-    def test_YamlDump(self):
-        actual = yaml.load(statemanager._yaml_dump(self.okay_mock))
-        self.assertIs(type(actual), dict,"Error Returning Yaml Dump")
-    
     def test_StateWrite(self):
         statemanager.write_state_file(self.test_file_name, self.okay_mock)
-        actual = open(self.test_file_name)     
+        actual = open(self.test_file_name, 'r')
         self.assertIs(type(actual), file, "Error writing file")
     
-        
-
+    def test_RoundTrip(self):
+        statemanager.write_state_file(self.test_file_name, self.okay_mock)
+        actual = statemanager.parse_state_file(self.test_file_name)
+        self.assertEqual(actual, self.okay_mock)
+    
 class TestStateRead(unittest.TestCase):
     def setUp(self):
         
         #Create mock files for testing
-        self.mock_file_dict = {"empty_mock.yaml" : "",
-                               "normal_mock.yaml" :    """---\n
-                                                       state : okay\n
-                                                       since_local : !!timestamp '2013-02-10 13:12:11'\n
-                                                       message : No Message""",
-                               "warning_mock.yaml":    """---\n
-                                                      state : warning\n
-                                                      since_local : !!timestamp '2013-02-15 13:12:11'\n
-                                                      message : No Message""",
-                               "action_mock.yaml":    """---\n
-                                                      state : action\n
-                                                      since_local : !!timestamp '2013-02-28 13:12:11'\n
-                                                      message : No Message""",
-                                "trash_mock.yaml":   """a;slkdfj;laskjdf;akj""",
-                                
+        self.mock_file_dict = { "empty_mock.yaml" : "",
+                                "normal_mock.yaml" :    "!!python/object:states.OKState {message: No Message, since: !!timestamp '2013-02-28\n    20:29:53.696503'}\n",
+                                "warning_mock.yaml":    "!!python/object:states.WarningState {message: No Message, since: !!timestamp '2013-02-28\n    20:29:53.696503'}\n",
+                                "action_mock.yaml":    "!!python/object:states.ActionState {message: No Message, since: !!timestamp '2013-02-28\n    20:29:53.696503'}\n",
+                                "trash_mock.yaml":   """a;slkdfj;laskjdf;akj"""
                                 }
         for i in self.mock_file_dict.iterkeys():
             f = open(i, "w+")
@@ -76,7 +65,7 @@ class TestStateRead(unittest.TestCase):
     
     def test_Recovers_correct_date(self):
         actual = statemanager.parse_state_file("normal_mock.yaml").since
-        expected = datetime.datetime(2013, 2, 10, 13, 12, 11)
+        expected = datetime.datetime(2013, 2, 28, 20, 29, 53, 696503)
         self.assertEqual(actual, expected, "Unexpected datetime")
     
     def test_Recovers_correct_message(self):
