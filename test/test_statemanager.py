@@ -16,11 +16,11 @@ class TestStateWrite(unittest.TestCase):
         pass
     
     def test_OpenFile(self):
-        actual = statemanager.open_file_for_save(self.test_file_name)
+        actual = statemanager._open_file_for_save(self.test_file_name)
         self.assertIs(type(actual), file, "Error writing file")
     
     def test_YamlDump(self):
-        actual = yaml.load(statemanager.yaml_dump(self.okay_mock))
+        actual = yaml.load(statemanager._yaml_dump(self.okay_mock))
         self.assertIs(type(actual), dict,"Error Returning Yaml Dump")
     
     def test_StateWrite(self):
@@ -56,10 +56,10 @@ class TestStateRead(unittest.TestCase):
             f.close                
                     
     def test_FileMissing(self):
-        self.assertRaises(statemanager.MissingStateFileError, statemanager.get_file_handle, "nonexistent.yaml")
+        self.assertRaises(statemanager.MissingStateFileError, statemanager._get_file_handle, "nonexistent.yaml")
         
     def test_FileNotMissing(self):  
-        actual = statemanager.get_file_handle("empty_mock.yaml")
+        actual = statemanager._get_file_handle("empty_mock.yaml")
         self.assertIs(type(actual), file, "File is missing")
         
     def test_Recovers_OK_State(self):

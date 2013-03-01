@@ -1,6 +1,6 @@
-# stateready.py
+# statemanager.py
 # Patrick Souza <souza.patrick@gmail.com> for Prefiat LLC
-# Opens system state file and parses parameters for operation.
+# Contains methods for operating state files
 
 import yaml
 import states
@@ -11,15 +11,8 @@ class InvalidStateFileError(Exception):
 class MissingStateFileError(Exception):
     pass
 
-def get_file_handle(state_file):
-    try:
-        file_handle = open(state_file, 'r')
-        return file_handle
-    except IOError:
-        raise MissingStateFileError()
-
 def parse_state_file(state_file):
-    saved_state_file = get_file_handle(state_file)
+    saved_state_file = _get_file_handle(state_file)
             
     try:
         state_info = yaml.load(saved_state_file)
@@ -35,24 +28,36 @@ def parse_state_file(state_file):
             current_state = states.ActionState(since, message)
     except:
         raise InvalidStateFileError()
-    
-    saved_state_file.close()
+    finally:
+        saved_state_file.close()
     
     return current_state
+
+def write_state_file(state_file, current_state):
+    
+    f = _open_file_for_save(state_file)
+    f.write(_yaml_dump(current_state))
+    f.close()
+
+def _get_file_handle(state_file):
+    try:
+        file_handle = open(state_file, 'r')
+        return file_handle
+    except IOError:
+        raise MissingStateFileError()
+
+
 
 # ToDo: Raise exception if type(since) != datetime
 
 
-def open_file_for_save(state_file):
+def _open_file_for_save(state_file):
     file_handle = open(state_file, 'w')
     return file_handle
 
-def yaml_dump(current_state):
+def _yaml_dump(current_state):
     
-    return yaml.dump({"state" : current_state.__class__.__name__, "since_local" : current_state.since, "message" : current_state.message}) 
+    return yaml.dump({"state" : current_state.__class__.__name__, 
+                    "since_local" : current_state.since,
+                    "message" : current_state.message}) 
 
-def write_state_file(state_file, current_state):
-    
-    f = open_file_for_save(state_file)
-    f.write(yaml_dump(current_state))
-    f.close()
