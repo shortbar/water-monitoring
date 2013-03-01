@@ -36,6 +36,8 @@ def parse_state_file(state_file):
     except:
         raise InvalidStateFileError()
     
+    saved_state_file.close()
+    
     return current_state
 
 # ToDo: Raise exception if type(since) != datetime
@@ -44,5 +46,13 @@ def parse_state_file(state_file):
 def open_file_for_save(state_file):
     file_handle = open(state_file, 'w')
     return file_handle
+
+def yaml_dump(current_state):
     
+    return yaml.dump({"state" : current_state.__class__.__name__, "since_local" : current_state.since, "message" : current_state.message}) 
+
+def write_state_file(state_file, current_state):
     
+    f = open_file_for_save(state_file)
+    f.write(yaml_dump(current_state))
+    f.close()
