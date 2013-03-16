@@ -4,9 +4,10 @@
 
 import statemanage
 import gpiomanager
+import apimanager
 
 gpio_mgr = gpiomanager.GPIOManager()
-gis_api = gisapi.GISAPI()
+gis_api = apimanager.GISAPI()
 
 try:
 	current_state = statemanager.parse_state_file()

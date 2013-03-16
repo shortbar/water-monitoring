@@ -3,3 +3,4 @@
 *.pyc
 *.yaml
 *.metadata
+._*

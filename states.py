@@ -8,13 +8,22 @@ class SystemState:
         self.message = message
 
 class OKState(SystemState):
-    def next(gpio_manager):
+    def next(self, gpio_mgr):
+        fs_state = gpio_mgr.is_floating()
         pass
+    def set_outputs(self, gpio_mgr):
+        return gpio_mgr.set_OKState()
 
 class WarningState(SystemState):
-    def next(gpio_manager):
+    def next(self, gpio_mgr):
+        fs_state = gpio_mgr.is_floating()
         pass
+    def set_outputs(self, gpio_mgr):
+        return gpio_mgr.set_WarningState()
 
 class ActionState(SystemState):
-    def next(gpio_manager):
+    def next(self, gpio_mgr):
+        fs_state = gpio_mgr.is_floating()
         pass
+    def set_outputs(self, gpio_mgr):
+        return gpio_mgr.set_ActionState()
