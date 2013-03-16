@@ -5,6 +5,7 @@
 import statemanage
 import gpiomanager
 import apimanager
+import datetime
 
 gpio_mgr = gpiomanager.GPIOManager()
 gis_api = apimanager.GISAPI()
@@ -16,4 +17,5 @@ try:
 	
 	statemanager.save(current_state)
 except:
-	gpio_mgr.set_trouble()
+	current_state = SystemTrouble(datetime.datetime.now(), "Exeption Raised")
+	current_state.set_output(gpio_mgr)

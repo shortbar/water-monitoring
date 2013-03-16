@@ -42,3 +42,11 @@ class ActionState(SystemState):
         pass
     def set_outputs(self, gpio_mgr):
         return gpio_mgr.set_ActionState()
+
+class SystemTrouble(SystemState):
+    def next(self, gpio_mgr):
+        pass
+    
+    def set_outputs(self, gpio_mgr):
+        pass
+    

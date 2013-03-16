@@ -16,5 +16,6 @@ class GPIOManager:
 		return "Warning State Set"
 	def set_ActionState(self):
 		return "Action State Set"
-   	
+   	def set_TroubleState(self):
+   		pass
     
