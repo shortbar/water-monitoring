@@ -23,30 +23,42 @@ class SystemState:
             return False
         
 class OKState(SystemState):
-    def next(self, gpio_mgr):
+    def next(self, gpio_mgr, api_mgr):
         fs_state = gpio_mgr.is_floating()
+        api_state = api_mgr.read_api()
         pass
     def set_outputs(self, gpio_mgr):
         return gpio_mgr.set_OKState()
 
 class WarningState(SystemState):
-    def next(self, gpio_mgr):
+    def next(self, gpio_mgr, api_mgr):
         fs_state = gpio_mgr.is_floating()
+        api_state = api_mgr.read_api()
         pass
     def set_outputs(self, gpio_mgr):
         return gpio_mgr.set_WarningState()
 
-class ActionState(SystemState):
-    def next(self, gpio_mgr):
+class TroubleState(SystemState):
+    def next(self, gpio_mgr, api_mgr):
         fs_state = gpio_mgr.is_floating()
+        api_state = api_mgr.read_api()
+        pass
+    def set_outputs(self, gpio_mgr):
+        return gpio_mgr.set_TroubleState()
+
+class ActionState(SystemState):
+    def next(self, gpio_mgr, api_mgr):
+        fs_state = gpio_mgr.is_floating()
+        api_state = api_mgr.read_api()
         pass
     def set_outputs(self, gpio_mgr):
         return gpio_mgr.set_ActionState()
 
-class SystemTrouble(SystemState):
-    def next(self, gpio_mgr):
-        pass
-    
+class TroubleState(SystemState):
+    def next(self, gpio_mgr, api_mgr):
+        fs_state = gpio_mgr.is_floating()
+        api_state = api_mgr.read_api()
+        pass  
     def set_outputs(self, gpio_mgr):
         pass
     
