@@ -6,8 +6,10 @@ import statemanage
 import gpiomanager
 import apimanager
 import datetime
+import piface.pfio as pfio_interface
 
-gpio_mgr = gpiomanager.GPIOManager()
+
+gpio_mgr = gpiomanager.GPIOManager(pfio_interface)
 gis_api = apimanager.GISAPI()
 
 try:

@@ -3,9 +3,9 @@
 # Handles reading the GIS api
 
 class GISAPIManager:
-	def __init__():
+	def __init__(self):
 		pass
 	
 	def read_api(self):
-		return ["foo", "bar"]
+		return self.api_method.water_level()
 		

@@ -5,15 +5,19 @@ import os
 import datetime
 import states
 import gpiomanager
+import pifake
+
 
 class TestGPIOManager(unittest.TestCase):
     def test_OutputPass(self):
+        pfio_interface = pifake.pfio_fake()
         state_list = [states.OKState(datetime.datetime.now(),"foo"),  
                       states.WarningState(datetime.datetime.now(),"foo"), 
-                      states.ActionState(datetime.datetime.now(),"foo")
+                      states.ActionState(datetime.datetime.now(),"foo"),
                       states.TroubleState(datetime.datetime.now(),"foo")]
         actual = []
-        gpiomgr = gpiomanager.GPIOManager()
+        gpiomgr = gpiomanager.GPIOManager(pfio_interface)
         for i in state_list:
-            actual.append(i.set_outputs(gpiomgr))
-        self.assertEqual(actual, ["OKState Set", "WarningState Set", "ActionState Set"], "Error Passing States") 
+            i.set_outputs(gpiomgr)
+            print i, pfio_interface.outputs
+            self.assertEqual(pfio_interface.outputs[state_list.index(i)], 1, "Error Setting {}".format(i)) 

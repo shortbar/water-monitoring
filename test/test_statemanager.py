@@ -15,6 +15,9 @@ class TestStateWrite(unittest.TestCase):
         self.okay_mock = states.OKState(datetime.datetime.now(), "Everything will be fine")
         pass
     
+    def tearDown(self):
+        pass
+    
     def test_OpenFile(self):
         actual = statemanager._open_file_for_save(self.test_file_name)
         self.assertIs(type(actual), file, "Error writing file")
