@@ -8,4 +8,3 @@ class GISAPIManager:
 	
 	def read_api(self):
 		return self.api_method.water_level()
-		

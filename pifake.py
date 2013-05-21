@@ -8,11 +8,10 @@ class pfio_fake:
         self.outputs = [0 for i in range(8)]
     
     def digital_read(self, pin):
-        return self.inputs[pin-1]
+        return self.inputs[pin]
     
     def digital_write(self, pin, value):
-        self.outputs[pin-1] = value
+        self.outputs[pin] = value
     
     def init(self):
        self.outputs = [0 for i in self.outputs]
-    

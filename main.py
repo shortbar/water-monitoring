@@ -2,15 +2,14 @@
 # David R. Albrecht for Prefiat LLC
 # Runs the program
 
-import statemanage
+import statemanager
 import gpiomanager
 import apimanager
 import datetime
 import piface.pfio as pfio_interface
 
-
 gpio_mgr = gpiomanager.GPIOManager(pfio_interface)
-gis_api = apimanager.GISAPI()
+gis_api = apimanager.GISAPIManager()
 
 try:
 	current_state = statemanager.parse_state_file()
