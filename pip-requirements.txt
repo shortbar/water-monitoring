@@ -2,4 +2,4 @@ pyyaml
 pyunit
 mock
 nose
-
+urllib3
