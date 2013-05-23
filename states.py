@@ -19,10 +19,10 @@ class OKState(SystemState):
         d_time = (datetime.datetime.now() - self.since).total_seconds()
         if d_time < 3600:
             return OKState(datetime.datetime.now(), "Current State is: Okay. Plum Creek water level at {} feet".format(gage_height_feet))
-        elif gage_height_feet < 15.3:
-            return OKState(datetime.datetime.now(), "Current State is: Okay. Plum Creek water level at {} feet".format(gage_height_feet))
         elif gage_height_feet >= 15.3:
             return WarningState(datetime.datetime.now(), "Current state is: Warning. Plum Creek water level at {} feet".format(gage_height_feet))
+        else:
+            return OKState(datetime.datetime.now(), "Current State is: Okay. Plum Creek water level at {} feet".format(gage_height_feet))
         
     def set_outputs(self, gpio_mgr):
         return gpio_mgr.set_OKState()
@@ -34,12 +34,12 @@ class WarningState(SystemState):
         d_time = (datetime.datetime.now() - self.since).total_seconds()
         if d_time < 900:
             return WarningState(datetime.datetime.now(), "Current State is: Warning. Plum Creek water level at {} feet".format(gage_height_feet))
-        elif is_floating == True and gage_height_feet >= 15.3:
-            return ActionState(datetime.datetime.now(), "Current State is: Action. Float switch is either raised or out of order. Plum Creek water level at {} feet".format(gage_height_feet))
-        elif is_floating == False and gage_height_feet >= 15.3:
-            return WarningState(datetime.datetime.now(), "Current State is: Warning. Plum Creek water level at {} feet".format(gage_height_feet))
-        elif gage_height_feet < 15.3:
+        elif gage_height_feet <= 15.0:
             return OKState(datetime.datetime.now(), "Current State is: Okay. Plum Creek water level at {} feet".format(gage_height_feet))
+        elif is_floating:
+            return ActionState(datetime.datetime.now(), "Current State is: Action. Float switch is either raised or out of order. Plum Creek water level at {} feet".format(gage_height_feet))
+        else:
+            return WarningState(datetime.datetime.now(), "Current State is: Warning. Plum Creek water level at {} feet".format(gage_height_feet))
         
     def set_outputs(self, gpio_mgr):
         return gpio_mgr.set_WarningState()
@@ -59,10 +59,11 @@ class ActionState(SystemState):
         d_time = (datetime.datetime.now() - self.since).total_seconds()
         if d_time < 900:
             return ActionState(datetime.datetime.now(), "Current State is: Action. Plum Creek water level at {} feet. Float switch raised: {}".format(gage_height_feet, is_floating))
-        elif gage_height_feet >= 15:
-            return ActionState(datetime.datetime.now(), "Current State is: Action. Plum Creek water level at {} feet. Float switch raised: {}".format(gage_height_feet, is_floating))
-        elif gage_height_feet < 15:
+        elif gage_height_feet <= 15:
             return OKState(datetime.datetime.now(), "Current State is: Okay. Plum Creek water level at {} feet".format(gage_height_feet))
+        else:
+            return ActionState(datetime.datetime.now(), "Current State is: Action. Plum Creek water level at {} feet. Float switch raised: {}".format(gage_height_feet, is_floating))
+            
     def set_outputs(self, gpio_mgr):
         return gpio_mgr.set_ActionState()
 

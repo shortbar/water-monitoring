@@ -8,6 +8,8 @@ import apimanager
 import datetime
 import piface.pfio as pfio_interface
 
+# where does the piface get initialized?
+
 gpio_mgr = gpiomanager.GPIOManager(pfio_interface)
 gis_api = apimanager.GISAPIManager()
 
