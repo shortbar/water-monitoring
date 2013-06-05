@@ -7,6 +7,7 @@ import gpiomanager
 import apimanager
 import datetime
 import piface.pfio as pfio_interface
+import states
 
 # where does the piface get initialized?
 
