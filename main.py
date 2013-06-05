@@ -20,6 +20,6 @@ try:
 	current_state.set_outputs(gpio_mgr)
 	statemanager.write_state_file("state_file.yaml", current_state)
 except:
-	current_state = TroubleState(datetime.datetime.now(), "Exeption Raised")
-	current_state.set_output(gpio_mgr)
+	current_state = states.TroubleState(datetime.datetime.now(), "Exeption Raised")
+	current_state.set_outputs(gpio_mgr)
 	statemanager.write_state_file("state_file.yaml", current_state)
