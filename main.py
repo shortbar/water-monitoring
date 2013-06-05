@@ -10,7 +10,7 @@ import piface.pfio as pfio_interface
 import states
 
 # where does the piface get initialized?
-
+pfio_interface.init()
 gpio_mgr = gpiomanager.GPIOManager(pfio_interface)
 gis_api = apimanager.GISAPIManager()
 
