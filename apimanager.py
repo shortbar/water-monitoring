@@ -25,7 +25,7 @@ class GISAPIManager:
         gis_response = json.loads(r.data)
         try:
             height_ft_string = gis_response['value']['timeSeries'][0]['values'][0]['value'][0]['value']
-            height_ft_float = float(height_string)
+            height_ft_float = float(height_ft_string)
         except:
             # TODO: handle invalid format error
             # TODO: Handle invalid conversion error

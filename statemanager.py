@@ -30,6 +30,9 @@ def write_state_file(state_file, current_state):
     f = _open_file_for_save(state_file)
     f.write(yaml.dump(current_state))
     f.close()
+    
+def write_state_stdout(current_state):
+    print(yaml.dump(current_state))
 
 def _get_file_handle(state_file):
     try:
