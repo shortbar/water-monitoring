@@ -15,10 +15,12 @@ class GISAPIManager:
         try:
             r = http.request('GET', self.usgs_url)
         except:
+            print "Error: API Access Exception"
             # TODO: handle API access error
             pass
         
         if r.status != 200:
+            print "Error: Non-200 return code"
             # TODO: Handle API access error
             pass
         
@@ -27,6 +29,7 @@ class GISAPIManager:
             height_ft_string = gis_response['value']['timeSeries'][0]['values'][0]['value'][0]['value']
             height_ft_float = float(height_ft_string)
         except:
+            print "Error: Data format / conversion error"
             # TODO: handle invalid format error
             # TODO: Handle invalid conversion error
             pass
