@@ -18,11 +18,11 @@ class OKState(SystemState):
         gage_height_feet = api_mgr.get_plum_creek_gage_height_ft()
         d_time = (datetime.datetime.now() - self.since).total_seconds()
         if d_time < 3600:
-            return OKState(self.since, "Current State is: Okay. Plum Creek water level at {} feet".format(gage_height_feet))
+            return OKState(self.since, "Current State is: Okay. Plum Creek water level at {} feet, floating: {}".format(gage_height_feet, is_floating))
         elif gage_height_feet >= 15.3:
-            return WarningState(datetime.datetime.now(), "Current state is: Warning. Plum Creek water level at {} feet".format(gage_height_feet))
+            return WarningState(datetime.datetime.now(), "Current state is: Warning. Plum Creek water level at {} feet, floating: {}".format(gage_height_feet, is_floating))
         else:
-            return OKState(datetime.datetime.now(), "Current State is: Okay. Plum Creek water level at {} feet".format(gage_height_feet))
+            return OKState(datetime.datetime.now(), "Current State is: Okay. Plum Creek water level at {} feet, floating: {}".format(gage_height_feet, is_floating))
         
     def set_outputs(self, gpio_mgr):
         return gpio_mgr.set_OKState()
