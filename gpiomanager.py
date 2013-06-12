@@ -13,17 +13,17 @@ class GPIOManager:
             return False    # NC switch in closed position -> water below switch
    
     def set_OKState(self):
-        self.pfio.write_output(0xee)
-        return 0xee
+        self.pfio.write_output(0x11)
+        return 0x11
    	
     def set_WarningState(self):
-        self.pfio.write_output(0xdd)
-        return 0xdd
+        self.pfio.write_output(0x22)
+        return 0x22
 		
     def set_ActionState(self):
-        self.pfio.write_output(0xbb)
-        return 0xbb
+        self.pfio.write_output(0x44)
+        return 0x44
    	
     def set_TroubleState(self):
-        self.pfio.write_output(0x87)
-        return 0x87
+        self.pfio.write_output(0x78)
+        return 0x78
