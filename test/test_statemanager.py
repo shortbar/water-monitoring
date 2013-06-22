@@ -12,7 +12,7 @@ import states
 class TestStateWrite(unittest.TestCase):
     def setUp(self):
         self.test_file_name = "test/tmp/System_State.yaml"
-        self.okay_mock = states.OKState(datetime.datetime.now(), "Everything will be fine")
+        self.okay_mock = states.OKState(datetime.datetime.now(), datetime.datetime.now(), 0, "Everything will be fine")
         pass
     
     def tearDown(self):

@@ -14,25 +14,25 @@ class TestGPIOManager(unittest.TestCase):
         self.gpiomgr = gpiomanager.GPIOManager(self.pfio_interface)
         
     def test_AllClearOutput(self):
-        system_state = states.OKState(datetime.datetime.now(), "foo")
+        system_state = states.OKState(datetime.datetime.now(), datetime.datetime.now(), 0, "foo")
         system_state.set_outputs(self.gpiomgr)
         
         self.assertEqual(self.pfio_interface.read_output(), 0x11, "Incorrect output for all clear state")
     
     def test_WarningOutput(self):
-        system_state = states.WarningState(datetime.datetime.now(), "foo")
+        system_state = states.WarningState(datetime.datetime.now(), datetime.datetime.now(), 0, "foo")
         system_state.set_outputs(self.gpiomgr)
         
         self.assertEqual(self.pfio_interface.read_output(), 0x22, "Incorrect output for warning state")
         
     def test_ActionOutput(self):
-        system_state = states.ActionState(datetime.datetime.now(), "foo")
+        system_state = states.ActionState(datetime.datetime.now(), datetime.datetime.now(), 0, "foo")
         system_state.set_outputs(self.gpiomgr)
         
         self.assertEqual(self.pfio_interface.read_output(), 0x44, "Incorrect output for action state")
         
     def test_SystemTroubleOutput(self):
-        system_state = states.TroubleState(datetime.datetime.now(), "foo")
+        system_state = states.TroubleState(datetime.datetime.now(), datetime.datetime.now(), 0, "foo")
         system_state.set_outputs(self.gpiomgr)
         
         self.assertEqual(self.pfio_interface.read_output(), 0x78, "Incorrect output for system trouble state")

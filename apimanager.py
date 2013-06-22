@@ -16,6 +16,7 @@ class GISAPIManager:
             r = http.request('GET', self.usgs_url)
         except:
             print "Error: API Access Exception"
+            # NOTE: We reach this state when network unavailable
             # TODO: handle API access error
             pass
         
