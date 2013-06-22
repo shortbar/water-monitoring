@@ -15,15 +15,12 @@ class GISAPIManager:
         try:
             r = http.request('GET', self.usgs_url)
         except:
-            print "Error: API Access Exception"
-            # NOTE: We reach this state when network unavailable
-            # TODO: handle API access error
-            pass
+            print "Network/transport error connecting to USGS API"
+            raise
         
         if r.status != 200:
-            print "Error: Non-200 return code"
-            # TODO: Handle API access error
-            pass
+            print "Error: non-200 return code from USGS API"
+            raise Exception("Non-200 return code from USGS API")
         
         gis_response = json.loads(r.data)
         try:
@@ -31,8 +28,6 @@ class GISAPIManager:
             height_ft_float = float(height_ft_string)
         except:
             print "Error: Data format / conversion error"
-            # TODO: handle invalid format error
-            # TODO: Handle invalid conversion error
-            pass
+            raise
         
         return height_ft_float
