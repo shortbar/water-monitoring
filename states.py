@@ -43,7 +43,7 @@ class OKState(SystemState):
                 gage_height_feet = api_mgr.get_plum_creek_gage_height_ft()
             except:
                 api_faults = self.api_faults + 1
-                if api_faults >= self.allowable_faults:
+                if api_faults > self.allowable_faults:
                     return TroubleState(datetime.datetime.now(), datetime.datetime.now(), 0, "API read failure in OKState")
                 else:
                     return self.api_read_failure("OK->OK (api fault)")
@@ -71,7 +71,7 @@ class WarningState(SystemState):
                 gage_height_feet = api_mgr.get_plum_creek_gage_height_ft()
             except:
                 api_faults = self.api_faults + 1
-                if api_faults >= self.allowable_faults:
+                if api_faults > self.allowable_faults:
                     return TroubleState(datetime.datetime.now(), datetime.datetime.now(), 0, "API read failure in WarningState")
                 else:
                     return self.api_read_failure("Warning->Warning (api fault)")
@@ -101,7 +101,7 @@ class ActionState(SystemState):
                 gage_height_feet = api_mgr.get_plum_creek_gage_height_ft()
             except:
                 api_faults = self.api_faults + 1
-                if api_faults >= self.allowable_faults:
+                if api_faults > self.allowable_faults:
                     return TroubleState(datetime.datetime.now(), datetime.datetime.now(), 0, "API read failure in ActionState")
                 else:
                     return self.api_read_failure("Action->Action (api fault)")
