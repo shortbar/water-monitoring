@@ -114,6 +114,36 @@ class ActionState(SystemState):
     def set_outputs(self, gpio_mgr):
         return gpio_mgr.set_ActionState()
 
+# State Cycle Test -- checks whether we can go through all the states.
+class StateCycleOK(SystemState):
+    def next(self, gpio_mgr, api_mgr):
+        return StateCycleWarning(datetime.datetime.now(), datetime.datetime.now(), 0, 'State cycle test, OK->Warning')
+    
+    def set_outputs(self, gpio_mgr):
+        return gpio_mgr.set_OKState()
+
+class StateCycleWarning(SystemState):
+    def next(self, gpio_mgr, api_mgr):
+        if gpio_mgr.is_floating():
+            return StateCycleAction(datetime.datetime.now(), datetime.datetime.now(), 0, 'State cycle test, switch floating, Warning->Action')
+        else:
+            return StateCycleWarning(datetime.datetime.now(), datetime.datetime.now(), 0, 'State cycle test, staying in warning')
+    
+    def set_outputs(self, gpio_mgr):
+        return gpio_mgr.set_WarningState()
+    
+class StateCycleAction(SystemState):
+    def next(self, gpio_mgr, api_mgr):
+        if gpio_mgr.is_floating():
+            return StateCycleAction(datetime.datetime.now(), datetime.datetime.now(), 0, 'State cycle test, switch floating, staying in action')
+        else:
+            return StateCycleOK(datetime.datetime.now(), datetime.datetime.now(), 0, 'State cycle test, in Action, moving to OK')
+        pass
+    
+    def set_outputs(self, gpio_mgr):
+        return gpio_mgr.set_ActionState()
+
+# System trouble
 class TroubleState(SystemState):
     def next(self, gpio_mgr, api_mgr):
         return self     # Trouble is a trap state; stay in it until we're manually reset

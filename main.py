@@ -11,8 +11,6 @@ import states
 import sys
 import os
 
-
-
 pfio_interface.init()
 gpio_mgr = gpiomanager.GPIOManager(pfio_interface)
 gis_api = apimanager.GISAPIManager()
