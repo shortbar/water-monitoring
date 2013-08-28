@@ -138,7 +138,6 @@ class StateCycleAction(SystemState):
             return StateCycleAction(datetime.datetime.now(), datetime.datetime.now(), 0, 'State cycle test, switch floating, staying in action')
         else:
             return StateCycleOK(datetime.datetime.now(), datetime.datetime.now(), 0, 'State cycle test, in Action, moving to OK')
-        pass
     
     def set_outputs(self, gpio_mgr):
         return gpio_mgr.set_ActionState()
