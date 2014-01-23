@@ -11,7 +11,7 @@ class SystemState:
         self.since = since
         self.api_faults = api_faults
         self.message = message
-        self.allowable_faults = 4
+        self.allowable_faults = 30
         
     def __eq__(self, other):
         return type(self) == type(other)
