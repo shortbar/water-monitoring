@@ -4,8 +4,7 @@
 .metadata
 ._*
 *.yaml
-<<<<<<< HEAD
 *.metadata
 ._*
-=======
->>>>>>> 68d74dc029e10d506376de475692eb82b2ea321c
+.DS_Store
+

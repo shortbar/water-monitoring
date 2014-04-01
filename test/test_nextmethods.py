@@ -8,89 +8,145 @@ import gpiomanager
 import apifake
 import pifake
 
-class TestOKStateTransitions(unittest.TestCase):
-    
+class TestSystemStateTransitions(unittest.TestCase):
     def setUp(self):
         self.api_mgr = apifake.api_fake()
         self.pfio_interface_fake = pifake.pfio_fake()
         self.gpio_mgr = gpiomanager.GPIOManager(self.pfio_interface_fake)
-    
-    def tearDown(self):
-        pass
-    
-    def test_OKState_to_OKState(self):
-        self.api_mgr.water_level = 10
-        current_state = states.OKState(datetime.datetime.now() - datetime.timedelta(0, 4000, 0), datetime.datetime.now(), 0, "foo")
-        current_state = current_state.next(self.gpio_mgr, self.api_mgr)
-        self.assertIsInstance(current_state, states.OKState, "Error maintaining OKState")
-        
-    def test_OKState_to_WarningState(self):
-        self.api_mgr.water_level = 16
-        current_state = states.OKState(datetime.datetime.now() - datetime.timedelta(0, 4000, 0), datetime.datetime.now(), 0, "foo")
-        current_state = current_state.next(self.gpio_mgr, self.api_mgr)
-        self.assertIsInstance(current_state, states.WarningState, "Error in OKState -> WarningState transition")
-        
-    def test_BelowTimeThreshold(self):
-        self.api_mgr.water_level = 16
-        current_state = states.OKState(datetime.datetime.now() - datetime.timedelta(0, 60, 0), datetime.datetime.now(), 0, "foo")
-        current_state = current_state.next(self.gpio_mgr, self.api_mgr)
-        self.assertIsInstance(current_state, states.OKState, "Error in maintaining OKState by insufficient time interval")
 
-class TestWarningStateTransitions(unittest.TestCase):
-    
-    def setUp(self):
-        self.api_mgr = apifake.api_fake()
-        self.pfio_interface_fake = pifake.pfio_fake()
-        self.gpio_mgr = gpiomanager.GPIOManager(self.pfio_interface_fake)
-        
-    def test_WarningState_to_WarningState(self):
-        self.api_mgr.water_level = 16
-        self.pfio_interface_fake.clear_floating()
-        current_state = states.WarningState(datetime.datetime.now() - datetime.timedelta(0, 4000, 0), datetime.datetime.now(), 0, "foo")
-        current_state = current_state.next(self.gpio_mgr, self.api_mgr)
-        self.assertIsInstance(current_state, states.WarningState, "Error maintaining Warning State") 
-    
-    def test_WarningState_to_OKState(self):
+    def test_dwells_when_under_time(self):
+        old_state = states.OKState(datetime.datetime.now() - datetime.timedelta(0, 60, 0), \
+            datetime.datetime.now(), 0, "foo")
+        new_state = old_state.next(self.gpio_mgr, self.api_mgr)
+        self.assertIsInstance(new_state, states.OKState, "Error in maintaining OKState by insufficient time interval")
+        self.assertEqual(old_state.last_checked, new_state.last_checked)
+
+    def test_calls_next_when_over_time(self):
         self.api_mgr.water_level = 10
-        current_state = states.WarningState(datetime.datetime.now() - datetime.timedelta(0, 4000, 0), datetime.datetime.now(), 0, "foo")
-        current_state = current_state.next(self.gpio_mgr, self.api_mgr)
-        self.assertIsInstance(current_state, states.OKState, "Error in WarningState -> OKState transition")
+        old_state = states.OKState(datetime.datetime.now() - datetime.timedelta(0, 4000, 0), \
+            datetime.datetime.now(), 0, "foo")
+        new_state = old_state.next(self.gpio_mgr, self.api_mgr)
+        self.assertIsInstance(new_state, states.OKState, "OKState did not return a new instance of itself")
+        self.assertNotEqual(old_state.last_checked, new_state.last_checked)
+
+class TestOKStateTransitions(unittest.TestCase):
+    def setUp(self):
+        self.start_state = states.OKState(datetime.datetime.now() - datetime.timedelta(0, 4000, 0), \
+            datetime.datetime.now(), 0, "foo")
+            
+    def test_not_floating_api_reads_low(self):
+        gage_height_feet = 10
+        is_floating = False
+        end_state = self.start_state.next_no_dwell(is_floating, gage_height_feet)
+        self.assertIsInstance(end_state, states.OKState, "Failure to maintain OKState")
+    
+    def test_not_floating_but_api_reads_high(self):
+        gage_height_feet = 16
+        is_floating = False
+        end_state = self.start_state.next_no_dwell(is_floating, gage_height_feet)
+        self.assertIsInstance(end_state, states.WarningState, "Failure to proceed to warning state")
+            
+    def test_floating_but_api_reads_low(self):
+        gage_height_feet = 10
+        is_floating = True
+        end_state = self.start_state.next_no_dwell(is_floating, gage_height_feet)
+        self.assertIsInstance(end_state, states.DrainCloggedState, "Failure to enter drain clogged from OKState")
         
-    def test_WarningState_to_ActionState(self):
-        self.api_mgr.water_level = 16
-        self.pfio_interface_fake.set_floating()
-        current_state = states.WarningState(datetime.datetime.now() - datetime.timedelta(0, 4000, 0), datetime.datetime.now(), 0, "foo")
-        current_state = current_state.next(self.gpio_mgr, self.api_mgr)
-        self.assertIsInstance(current_state, states.ActionState, "Error in WarningState -> ActionState transition")
+    def test_floating_and_api_reads_high(self):
+        gage_height_feet = 16
+        is_floating = True
+        end_state = self.start_state.next_no_dwell(is_floating, gage_height_feet)
+        self.assertIsInstance(end_state, states.WarningState, "Failure to enter warning state from OKState")    
+    
+class TestWarningStateTransitions(unittest.TestCase):
+    def setUp(self):
+        self.start_state = states.WarningState(datetime.datetime.now() - datetime.timedelta(0, 4000, 0), \
+            datetime.datetime.now(), 0, "foo")
+
+    def test_not_floating_api_reading_very_low(self):
+        gage_height_feet = 5
+        is_floating = False
+        end_state = self.start_state.next_no_dwell(is_floating, gage_height_feet)
+        self.assertIsInstance(end_state, states.OKState, "Failure to return to OKState from WarningState")
+    
+    def test_not_floating_api_reading_low(self):
+        gage_height_feet = 15
+        is_floating = False
+        end_state = self.start_state.next_no_dwell(is_floating, gage_height_feet)
+        self.assertIsInstance(end_state, states.OKState, "Failure to return to OKState from WarningState")
         
-    def test_BelowTimeThreshold(self):
-        self.api_mgr.water_level = 16
-        self.pfio_interface_fake.set_floating()
-        current_state = states.WarningState(datetime.datetime.now() - datetime.timedelta(0, 400, 0), datetime.datetime.now(), 0, "foo")
-        current_state = current_state.next(self.gpio_mgr, self.api_mgr)
-        self.assertIsInstance(current_state, states.WarningState, "Error in time difference check.")              
+    def test_not_floating_api_reading_high(self):
+        gage_height_feet = 16
+        is_floating = False
+        end_state = self.start_state.next_no_dwell(is_floating, gage_height_feet)
+        self.assertIsInstance(end_state, states.WarningState, "Failure to maintain warning from warning")
+    
+    def test_floating_but_api_reading_low(self):
+        gage_height_feet = 10
+        is_floating = True
+        end_state = self.start_state.next_no_dwell(is_floating, gage_height_feet)
+        self.assertIsInstance(end_state, states.DrainCloggedState, "Failure to enter DrainCloggedState from Warning")
+    
+    def test_floating_api_reading_high(self):
+        gage_height_feet = 16
+        is_floating = True
+        end_state = self.start_state.next_no_dwell(is_floating, gage_height_feet)
+        self.assertIsInstance(end_state, states.ActionState, "Failure to enter Action from Warning")
 
 class TestActionStateTransitions(unittest.TestCase):
-    
     def setUp(self):
-        self.api_mgr = apifake.api_fake()
-        self.pfio_interface_fake = pifake.pfio_fake()
-        self.gpio_mgr = gpiomanager.GPIOManager(self.pfio_interface_fake)
+        self.start_state = states.ActionState(datetime.datetime.now() - datetime.timedelta(0, 4000, 0), \
+            datetime.datetime.now(), 0, "foo")
+    
+    def test_not_floating_api_low(self):
+        gage_height_feet = 10
+        is_floating = False
+        end_state = self.start_state.next_no_dwell(is_floating, gage_height_feet)
+        self.assertIsInstance(end_state, states.OKState, "Failure to return to OK from Action")
         
-    def test_ActionState_to_ActionState(self):
-        self.api_mgr.water_level = 16
-        current_state = states.ActionState(datetime.datetime.now() - datetime.timedelta(0, 4000, 0), datetime.datetime.now(), 0, "foo")
-        current_state = current_state.next(self.gpio_mgr, self.api_mgr)
-        self.assertIsInstance(current_state, states.ActionState, "Error maintaining Action State")
+    def test_not_floating_api_high(self):
+        gage_height_feet = 16
+        is_floating = False
+        end_state = self.start_state.next_no_dwell(is_floating, gage_height_feet)
+        self.assertIsInstance(end_state, states.ActionState, "Failure to stay in Action")
     
-    def test_ActionState_to_OKState(self):
-        self.api_mgr.water_level = 10
-        current_state = states.ActionState(datetime.datetime.now() - datetime.timedelta(0, 4000, 0), datetime.datetime.now(), 0, "foo")
-        current_state = current_state.next(self.gpio_mgr, self.api_mgr)
-        self.assertIsInstance(current_state, states.OKState, "Error in ActionState -> OKState transition")
+    def test_floating_api_low(self):
+        gage_height_feet = 10
+        is_floating = True
+        end_state = self.start_state.next_no_dwell(is_floating, gage_height_feet)
+        self.assertIsInstance(end_state, states.DrainCloggedState, "Failure to enter DrainCloggedState from Action")
     
-    def test_BelowTimeThreshold(self):
-        self.api_mgr.water_level = 10
-        current_state = states.ActionState(datetime.datetime.now() - datetime.timedelta(0, 400, 0), datetime.datetime.now(), 0, "foo")
-        current_state = current_state.next(self.gpio_mgr, self.api_mgr)
-        self.assertIsInstance(current_state, states.ActionState, "Error in timedelta check")
+    def test_foating_api_high(self):
+        gage_height_feet = 16
+        is_floating = True
+        end_state = self.start_state.next_no_dwell(is_floating, gage_height_feet)
+        self.assertIsInstance(end_state, states.ActionState, "Failure to maintain Action from Action")
+
+class TestDrainCloggedStateTransitions(unittest.TestCase):
+    def setUp(self):
+        self.start_state = states.DrainCloggedState(datetime.datetime.now() - datetime.timedelta(0, 4000, 0), \
+            datetime.datetime.now(), 0, "foo")
+    
+    def test_not_floating_api_low(self):
+        gage_height_feet = 10
+        is_floating = False
+        end_state = self.start_state.next_no_dwell(is_floating, gage_height_feet)
+        self.assertIsInstance(end_state, states.OKState, "Failure to return to OKState from drain clog")
+    
+    def test_not_floating_api_high(self):
+        gage_height_feet = 16
+        is_floating = False
+        end_state = self.start_state.next_no_dwell(is_floating, gage_height_feet)
+        self.assertIsInstance(end_state, states.WarningState, "Failure to proceed to warning from drain clog")
+    
+    def test_floating_api_low(self):
+        gage_height_feet = 10
+        is_floating = True
+        end_state = self.start_state.next_no_dwell(is_floating, gage_height_feet)
+        self.assertIsInstance(end_state, states.DrainCloggedState, "Failure to maintain DrainCloggedState")
+    
+    def test_floating_api_high(self):
+        gage_height_feet = 16
+        is_floating = True
+        end_state = self.start_state.next_no_dwell(is_floating, gage_height_feet)
+        self.assertIsInstance(end_state, states.WarningState, "Failure to proceed to warning with drain clog")

@@ -36,3 +36,9 @@ class TestGPIOManager(unittest.TestCase):
         system_state.set_outputs(self.gpiomgr)
         
         self.assertEqual(self.pfio_interface.read_output(), 0x78, "Incorrect output for system trouble state")
+
+    def test_clogged_state_sets_output_correctly(self):
+        system_state = states.DrainCloggedState(datetime.datetime.now(), datetime.datetime.now(), 0, "foo")
+        system_state.set_outputs(self.gpiomgr)
+        
+        self.assertEqual(self.pfio_interface.read_output(), 0x66, "Incorrect output for drain clogged state")
